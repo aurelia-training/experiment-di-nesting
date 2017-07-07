@@ -1,10 +1,37 @@
-define('app',["require", "exports"], function (require, exports) {
+define('non-singleton-class',["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var NonSingletonClass = (function () {
+        function NonSingletonClass() {
+            this.testDataItem = "This is a non-singleton class.";
+        }
+        return NonSingletonClass;
+    }());
+    exports.NonSingletonClass = NonSingletonClass;
+});
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+define('app',["require", "exports", "aurelia-framework", "./non-singleton-class"], function (require, exports, aurelia_framework_1, non_singleton_class_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var App = (function () {
-        function App() {
+        function App(nscInjected) {
+            this.nscInjected = nscInjected;
             this.testDataItem = "Hello, World!";
+            this.nscInstantiated = new non_singleton_class_1.NonSingletonClass();
         }
+        App = __decorate([
+            aurelia_framework_1.inject(non_singleton_class_1.NonSingletonClass),
+            __metadata("design:paramtypes", [non_singleton_class_1.NonSingletonClass])
+        ], App);
         return App;
     }());
     exports.App = App;
@@ -116,7 +143,7 @@ define('resources/index',["require", "exports"], function (require, exports) {
     exports.configure = configure;
 });
 
-define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./au-components/component-a\"></require>\n\n  <au-component-a></au-component-a>\n\n</template>\n"; });
+define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./au-components/component-a\"></require>\n\n  <au-component-a></au-component-a>\n\n  <p>${nscInjected.testDataItem}</p>\n  <p>${nscInstantiated.testDataItem}</p>\n\n</template>\n"; });
 define('text!au-components/component-a.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./component-b\"></require>\n\n  <p>${app.testDataItem}</p>\n  <au-component-b></au-component-b>\n\n</template>\n"; });
 define('text!au-components/component-b.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./component-c\"></require>\n\n  <p>${app.testDataItem || \"undefined\"}</p>\n  <au-component-c></au-component-c>  \n\n</template>\n"; });
 define('text!au-components/component-c.html', ['module'], function(module) { module.exports = "<template>\n  \n  <p>${app.testDataItem || \"undefined\"}</p>\n  <p>*** This is the last level of nesting *** </p>\n\n</template>\n"; });
